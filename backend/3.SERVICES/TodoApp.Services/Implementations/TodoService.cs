@@ -2,18 +2,18 @@
 using TodoApp.Domain.Contracts.Repositories;
 using TodoApp.Domain.Contracts.Services;
 using TodoApp.Domain.Entities;
-using TodoApp.Repositories.InMemory;
+using TodoApp.SystemObjects.Contracts;
 
 namespace TodoApp.Services.Implementations
 {
     public class TodoService : ITodoService
     {
-        private readonly InMemoryDbContext _inMemoryDb;
+        private readonly IUnitOfWork _uow;
         private readonly ITodoRepository _repository;
 
-        public TodoService(InMemoryDbContext inMemoryDb, ITodoRepository repository)
+        public TodoService(IUnitOfWork uow, ITodoRepository repository)
         {
-            _inMemoryDb = inMemoryDb;
+            _uow = uow;
             _repository = repository;
         }
 
@@ -21,7 +21,7 @@ namespace TodoApp.Services.Implementations
         {
             Todo createdTodo = await _repository.CreateAsync(entity, cancellationToken);
 
-            await _inMemoryDb.SaveChangesAsync(cancellationToken);
+            await _uow.CommitAsync(cancellationToken);
 
             return createdTodo;
         }
@@ -30,14 +30,14 @@ namespace TodoApp.Services.Implementations
         {
             await _repository.DestroyAsync(identifier, cancellationToken);
 
-            await _inMemoryDb.SaveChangesAsync(cancellationToken);
+            await _uow.CommitAsync(cancellationToken);
         }
 
         public async Task FlagAsDeletedAsync(string identifier, CancellationToken cancellationToken = default)
         {
             await _repository.FlagAsDeletedAsync(identifier, cancellationToken);
 
-            await _inMemoryDb.SaveChangesAsync(cancellationToken);
+            await _uow.CommitAsync(cancellationToken);
         }
 
         public async Task<IEnumerable<Todo>> GetManyAsync(Expression<Func<Todo, bool>> filter, int currentPage = 1, int pageSize = 20, CancellationToken cancellationToken = default)
@@ -54,7 +54,7 @@ namespace TodoApp.Services.Implementations
         {
             await _repository.UpdateAsync(entity, cancellationToken);
 
-            await _inMemoryDb.SaveChangesAsync(cancellationToken);
+            await _uow.CommitAsync(cancellationToken);
 
             return entity;
         }
