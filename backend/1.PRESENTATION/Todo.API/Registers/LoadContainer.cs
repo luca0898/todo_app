@@ -6,6 +6,7 @@
         {
             AutoMapper.Load(services);
             Repositories.Load(services);
+            Services.Load(services);
             Cors.Load(services);
             Mvc.Load(services);
             Swagger.Load(services);

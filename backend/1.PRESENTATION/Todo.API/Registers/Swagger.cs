@@ -2,7 +2,7 @@
 {
     public static class Swagger
     {
-        public static void Load (IServiceCollection services)
+        public static void Load(IServiceCollection services)
         {
             services.AddSwaggerGen();
         }

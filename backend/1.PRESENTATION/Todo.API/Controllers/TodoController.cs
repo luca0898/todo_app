@@ -1,11 +1,10 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using TodoApp.API.Responses;
-using TodoApp.Domain.Contracts.Repositories;
+using TodoApp.Domain.Contracts.Services;
 using TodoApp.Domain.Entities;
 using TodoApp.Domain.InputModels;
 using TodoApp.Domain.ViewModel;
-using TodoApp.Repositories.InMemory;
 
 namespace TodoApp.Controllers
 {
@@ -13,27 +12,24 @@ namespace TodoApp.Controllers
     [Route("todo")]
     public class TodoController : ControllerBase
     {
-        private readonly InMemoryDbContext _inMemoryDb;
         private readonly ILogger<TodoController> _logger;
         private readonly IMapper _mapper;
-        private readonly ITodoRepository _repository;
+        private readonly ITodoService _service;
 
         public TodoController(
-            InMemoryDbContext inMemoryDb,
             ILogger<TodoController> logger,
             IMapper mapper,
-            ITodoRepository repository)
+            ITodoService service)
         {
-            _repository = repository;
             _logger = logger;
-            _inMemoryDb = inMemoryDb;
             _mapper = mapper;
+            _service = service;
         }
 
         [HttpGet("")]
-        public async Task<IActionResult> IndexAsync(int currentPage = 1, int pageSize = 20, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetAsync(int currentPage = 1, int pageSize = 20, CancellationToken cancellationToken = default)
         {
-            IEnumerable<Todo> entities = await _repository.GetManyAsync((entity) => !entity.Deleted, currentPage, pageSize, cancellationToken);
+            IEnumerable<Todo> entities = await _service.GetManyAsync((entity) => !entity.Deleted, currentPage, pageSize, cancellationToken);
 
             return Ok(new SuccessResponseViewModel<IEnumerable<TodoViewModel>>(_mapper.Map<IEnumerable<TodoViewModel>>(entities)));
         }
@@ -41,7 +37,7 @@ namespace TodoApp.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOneAsync([FromRoute] string id, CancellationToken cancellationToken)
         {
-            Todo? existingTodo = await _repository.GetOneAsync(todo => todo.Id == id, cancellationToken);
+            Todo? existingTodo = await _service.GetOneAsync(todo => todo.Id == id, cancellationToken);
 
             if (existingTodo == null)
             {
@@ -57,9 +53,7 @@ namespace TodoApp.Controllers
             // todo: utilizar mapper
             Todo newTodo = new(inputModel.Title, inputModel.Finished);
 
-            Todo entity = await _repository.CreateAsync(newTodo, cancellationToken);
-
-            await _inMemoryDb.SaveChangesAsync(cancellationToken);
+            Todo entity = await _service.CreateAsync(newTodo, cancellationToken);
 
             return Ok(new SuccessResponseViewModel<TodoViewModel>(_mapper.Map<TodoViewModel>(entity)));
         }
@@ -67,7 +61,7 @@ namespace TodoApp.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync([FromRoute] string id, [FromBody] TodoInputModel inputModel, CancellationToken cancellationToken)
         {
-            Todo? existingTodo = await _repository.GetOneAsync(todo => todo.Id == id, cancellationToken);
+            Todo? existingTodo = await _service.GetOneAsync(todo => todo.Id == id, cancellationToken);
 
             if (existingTodo == null)
             {
@@ -77,9 +71,7 @@ namespace TodoApp.Controllers
             Todo modifiedTodo = _mapper.Map<Todo>(inputModel);
             modifiedTodo.Id = id;
 
-            await _repository.UpdateAsync(modifiedTodo, cancellationToken);
-
-            await _inMemoryDb.SaveChangesAsync(cancellationToken);
+            await _service.UpdateAsync(modifiedTodo, cancellationToken);
 
             return Ok(new SuccessResponseViewModel<TodoViewModel>(_mapper.Map<TodoViewModel>(modifiedTodo)));
         }
@@ -87,16 +79,14 @@ namespace TodoApp.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync([FromRoute] string id, CancellationToken cancellationToken)
         {
-            Todo? existingTodo = await _repository.GetOneAsync(todo => todo.Id == id, cancellationToken);
+            Todo? existingTodo = await _service.GetOneAsync(todo => todo.Id == id, cancellationToken);
 
             if (existingTodo == null)
             {
                 return BadRequest(new ErrorResponseViewModel(string.Format("Todo with id {0} not found", id)));
             }
 
-            await _repository.DestroyAsync(id, cancellationToken);
-
-            await _inMemoryDb.SaveChangesAsync(cancellationToken);
+            await _service.DestroyAsync(id, cancellationToken);
 
             return NoContent();
         }
