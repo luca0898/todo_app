@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp.Services", "3.SERVI
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0.SYSTEM_OBJECTS", "0.SYSTEM_OBJECTS", "{8AF4DE63-7DF9-416B-8751-9345F88F7102}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoApp.SystemObjects", "TodoApp.SystemObjects\0.SYSTEM_OBJECTS\TodoApp.SystemObjects.csproj", "{B73FF644-B784-427B-AEB8-F4F8659835D1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoApp.SystemObjects", "0.SYSTEM_OBJECTS\TodoApp.SystemObjects\TodoApp.SystemObjects.csproj", "{B73FF644-B784-427B-AEB8-F4F8659835D1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

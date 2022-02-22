@@ -12,7 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\2.DOMAIN\TodoApp.Domain\TodoApp.Domain.csproj" />
-    <ProjectReference Include="..\..\TodoApp.SystemObjects\0.SYSTEM_OBJECTS\TodoApp.SystemObjects.csproj" />
+    <ProjectReference Include="..\..\0.SYSTEM_OBJECTS\TodoApp.SystemObjects\TodoApp.SystemObjects.csproj" />
   </ItemGroup>
 
 </Project>
