@@ -1,0 +1,53 @@
+.controls {
+    display: flex;
+    justify-content: center;
+    padding: 2rem;
+
+    input {
+        padding: 10px;
+        width: 20rem;
+        background-color: var(--gray-800);
+        border-radius: .4rem 0 0 .4rem;
+        color: var(--gray-300);
+        border: none;
+        outline: none;
+    }
+}
+
+.add_button {
+    font-size: 2rem;
+    width: 3rem;
+    height: 3rem;
+    border: none;
+    border-radius: 0 .4rem .4rem 0;
+    background-color: var(--yellow-500);
+    transition: filter 1s;
+}
+.add_button:hover {
+    filter: brightness(0.8);
+}
+
+.todo_item {
+    display: flex;
+    justify-content: center;
+    margin: 2rem;
+
+    div {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: .4rem;
+        background-color: var(--gray-800);
+
+        button {
+            background-color: transparent;
+            border: none;
+            color: var(--cyan-500);
+        }
+    }
+}
+
+.todo_finished {
+    text-decoration: line-through;
+    color: var(--gray-300);
+}

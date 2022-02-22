@@ -1,0 +1,48 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp.API", "1.PRESENTATION\Todo.API\TodoApp.API.csproj", "{214B234B-6C5C-435F-903A-4E37359D56E3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1.PRESENTATION", "1.PRESENTATION", "{B90F4B30-3FE1-4C0B-A216-C4C113974F43}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2.DOMAIN", "2.DOMAIN", "{65986EC8-E9D9-4B34-950D-97FB5251E9CF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoApp.Domain", "2.DOMAIN\TodoApp.Domain\TodoApp.Domain.csproj", "{425F9334-B76A-4F90-A031-DC4DDE80C5C1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4.REPOSITORIES", "4.REPOSITORIES", "{E590AF80-7373-49F6-BE82-DC34EBA81115}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoApp.Repositories.InMemory", "4.REPOSITORIES\TodoApp.Repositories.InMemory\TodoApp.Repositories.InMemory.csproj", "{AF44324A-A89F-4EDC-8926-AE02EF81879B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{214B234B-6C5C-435F-903A-4E37359D56E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{214B234B-6C5C-435F-903A-4E37359D56E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{214B234B-6C5C-435F-903A-4E37359D56E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{214B234B-6C5C-435F-903A-4E37359D56E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{425F9334-B76A-4F90-A031-DC4DDE80C5C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{425F9334-B76A-4F90-A031-DC4DDE80C5C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{425F9334-B76A-4F90-A031-DC4DDE80C5C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{425F9334-B76A-4F90-A031-DC4DDE80C5C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF44324A-A89F-4EDC-8926-AE02EF81879B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF44324A-A89F-4EDC-8926-AE02EF81879B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF44324A-A89F-4EDC-8926-AE02EF81879B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF44324A-A89F-4EDC-8926-AE02EF81879B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{214B234B-6C5C-435F-903A-4E37359D56E3} = {B90F4B30-3FE1-4C0B-A216-C4C113974F43}
+		{425F9334-B76A-4F90-A031-DC4DDE80C5C1} = {65986EC8-E9D9-4B34-950D-97FB5251E9CF}
+		{AF44324A-A89F-4EDC-8926-AE02EF81879B} = {E590AF80-7373-49F6-BE82-DC34EBA81115}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E488C87A-5E03-4577-9CEB-D9E7B7115D3D}
+	EndGlobalSection
+EndGlobal
