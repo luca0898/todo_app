@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { getPagged, create, update, remove } from "./Services"
 import styles from "./app.module.scss"
 
 function App() {
@@ -7,42 +8,41 @@ function App() {
   const [todos, setTodos] = useState([])
 
   useEffect(() => {
-    axios.get('https://localhost:4000/todo')
-      .then(response => response.data)
-      .then((data) => setTodos(data.data))
-      .catch(console.error)
+    getAll()
   }, [])
 
-  function createNewTodo() {
+  async function getAll() {
+    const { data: responseBody } = await getPagged(1, 20)
+
+    setTodos(responseBody.data)
+  }
+
+  async function createNewTodo() {
     if (!newTodo) {
       return;
     }
 
-    axios.post('https://localhost:4000/todo', {
+    const { data: responseBody } = await create({
       title: newTodo,
       finished: false
     })
-      .then(response => response.data)
-      .then((data) => {
-        setTodos(o => [...o, data])
-        setNewTodo("")
-      })
-      .catch(console.error)
+
+    setTodos(o => [...o, responseBody.data])
   }
 
-  function toggleTodo(todo) {
+  async function toggleTodo(todo) {
     const modifiedTodo = { ...todo, finished: !todo.finished };
 
-    axios.put(`https://localhost:4000/todo/${todo.id}`, modifiedTodo)
-      .then(response => setTodos(o => o.map(m => m.id === todo.id ? modifiedTodo : m)))
-      .catch(console.error)
+    await update(todo.id, modifiedTodo)
+
+    setTodos(o => o.map(m => m.id === todo.id ? modifiedTodo : m))
   }
 
 
-  function removeTodo(id) {
-    axios.delete(`https://localhost:4000/todo/${id}`)
-      .then(() => setTodos(o => o.filter(f => f.id !== id)))
-      .catch(console.error)
+  async function removeTodo(id) {
+    await remove(id)
+
+    setTodos(oldState => oldState.filter(todo => todo.id !== id))
   }
 
   return (
