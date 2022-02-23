@@ -21,10 +21,14 @@
     border: none;
     border-radius: 0 .4rem .4rem 0;
     background-color: var(--yellow-500);
-    transition: filter 1s;
+    transition:all 1s;
 }
 .add_button:hover {
     filter: brightness(0.8);
+}
+.add_button:active {
+    position: relative;
+    top: 1px;
 }
 
 .todo_item {

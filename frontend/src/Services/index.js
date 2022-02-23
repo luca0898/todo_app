@@ -1,7 +1,7 @@
 import axios from "axios"
 
 export const todoApi = axios.create({
-    baseURL: "https://localhost:5001" + "/todo",
+    baseURL: `${process.env.REACT_APP_TODO_API_URL}/todo`,
     timeout: 1000
 })
 

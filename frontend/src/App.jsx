@@ -1,7 +1,6 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
-import { getPagged, create, update, remove } from "./Services"
-import styles from "./app.module.scss"
+import styles from "./app.module.scss";
+import { create, getPagged, remove, update } from "./Services";
 
 function App() {
   const [newTodo, setNewTodo] = useState("")
@@ -12,22 +11,22 @@ function App() {
   }, [])
 
   async function getAll() {
-    const { data: responseBody } = await getPagged(1, 20)
+    const { data: { data: responseBody } } = await getPagged(1, 20)
 
-    setTodos(responseBody.data)
+    setTodos(responseBody)
   }
 
   async function createNewTodo() {
-    if (!newTodo) {
+    if (!newTodo)
       return;
-    }
 
-    const { data: responseBody } = await create({
+    const { data: { data: responseBody } } = await create({
       title: newTodo,
       finished: false
     })
 
-    setTodos(o => [...o, responseBody.data])
+    setTodos(o => [...o, responseBody])
+    setNewTodo("")
   }
 
   async function toggleTodo(todo) {
@@ -60,7 +59,7 @@ function App() {
 
       <div>
         <ul>
-          {todos?.map((todo, index) => (
+          {todos?.map((todo) => (
             <li key={todo.id} className={styles.todo_item}>
               <div>
                 <label className={todo.finished ? styles.todo_finished : ""}>{todo.title}</label>
