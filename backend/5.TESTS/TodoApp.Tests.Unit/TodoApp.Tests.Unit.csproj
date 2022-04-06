@@ -2,8 +2,6 @@
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
-		<Nullable>enable</Nullable>
-
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 
@@ -25,6 +23,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\2.DOMAIN\TodoApp.Domain\TodoApp.Domain.csproj" />
 		<ProjectReference Include="..\..\3.SERVICES\TodoApp.Services\TodoApp.Services.csproj" />
+		<ProjectReference Include="..\..\4.REPOSITORIES\TodoApp.Repositories.InMemory\TodoApp.Repositories.InMemory.csproj" />
 	</ItemGroup>
 
 </Project>

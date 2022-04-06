@@ -1,11 +1,13 @@
 using FakeItEasy;
-using System;
-using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TodoApp.Domain.Contracts.Repositories;
 using TodoApp.Domain.Contracts.Services;
 using TodoApp.Domain.Entities;
+using TodoApp.Repositories.InMemory;
+using TodoApp.Repositories.InMemory.Implementations;
 using TodoApp.Services.Implementations;
 using TodoApp.SystemObjects.Contracts;
 using Xunit;
@@ -14,146 +16,135 @@ namespace TodoApp.Tests.Unit
 {
     public class TodoServiceTests
     {
-        public readonly ITodoService service;
-        public readonly IUnitOfWork unitOfWork;
-        public readonly ITodoRepository repository;
+        public ITodoService service;
+        public IUnitOfWork unitOfWork;
+        public DbContextOptions<InMemoryDbContext> options = new DbContextOptionsBuilder<InMemoryDbContext>()
+            .UseInMemoryDatabase("TodoAppInMemoryDbContext")
+            .Options;
+        public InMemoryDbContext dbContext;
+        public ITodoRepository repository;
 
         public TodoServiceTests()
         {
-            unitOfWork = A.Fake<IUnitOfWork>();
-            repository = A.Fake<ITodoRepository>();
+            dbContext = new(options);
+            unitOfWork = new UnitOfWorkInMemory(dbContext);
+            repository = new TodoRepository(dbContext);
 
             service = new TodoService(unitOfWork, repository);
         }
 
         [Fact]
-        public async Task CreateAsync_MustCommitNewRecord()
+        public async Task MustBeAbleToCountRecords()
         {
-            Todo todo = A.Fake<Todo>();
             CancellationToken cancellationToken = new();
 
-            Todo result = await service.CreateAsync(todo, cancellationToken);
+            Todo first = new("first task");
+            await service.CreateAsync(first, cancellationToken);
 
-            A.CallTo(() => repository.CreateAsync(todo, cancellationToken))
-                .MustHaveHappenedOnceExactly();
+            Todo second = new("second task");
+            await service.CreateAsync(second, cancellationToken);
 
-            A.CallTo(() => unitOfWork.CommitAsync(cancellationToken))
-                .MustHaveHappenedOnceExactly();
+            int totalRecords = service.Count();
+
+            Assert.Equal(2, totalRecords);
+
+            // remove after
+            dbContext.TodoList.Remove(first);
+            dbContext.TodoList.Remove(second);
+            dbContext.SaveChanges();
         }
 
         [Fact]
-        public async Task CreateAsync_MustReturnTheNewRecord()
+        public async Task MustBeAbleToQueryNewlyRecords()
         {
-            Todo todo = A.Fake<Todo>();
-            CancellationToken cancellationToken = new();
-            A.CallTo(() => repository.CreateAsync(todo, cancellationToken))
-                .Returns(todo);
-
-            Todo result = await service.CreateAsync(todo, cancellationToken);
-
-            A.CallTo(() => repository.CreateAsync(todo, cancellationToken))
-                .MustHaveHappenedOnceExactly();
-
-            A.CallTo(() => unitOfWork.CommitAsync(cancellationToken))
-                .MustHaveHappenedOnceExactly();
-
-            Assert.Equal(todo, result);
-        }
-
-        [Fact]
-        public async Task DestroyAsync_MustRemoveTheRecord()
-        {
-            string identifier = "RECORD_123";
+            Todo todo = new("new task");
             CancellationToken cancellationToken = new();
 
-            await service.DestroyAsync(identifier, cancellationToken);
+            Todo createdTodo = await service.CreateAsync(todo, cancellationToken);
 
-            A.CallTo(() => repository.DestroyAsync(identifier, cancellationToken))
-                .MustHaveHappenedOnceExactly();
+            bool dbContextContainCreatedTodo = dbContext.TodoList
+                 .AsQueryable()
+                 .Where(e => e.Id == createdTodo.Id)
+                 .Contains(createdTodo);
 
-            A.CallTo(() => unitOfWork.CommitAsync(cancellationToken))
-                .MustHaveHappenedOnceExactly();
+            Assert.True(dbContextContainCreatedTodo);
+
+            // remove after
+            dbContext.TodoList.Remove(createdTodo);
+            dbContext.SaveChanges();
         }
 
         [Fact]
-        public async Task FlagDeletedAsync_MustCallRepository()
+        public async Task MustBeToQueryRecordsAccordingToFilterParameter()
         {
-            string identifier = "RECORD_123";
             CancellationToken cancellationToken = new();
 
-            await service.FlagAsDeletedAsync(identifier, cancellationToken);
+            foreach (int value in Enumerable.Range(1, 20))
+            {
+                Todo todo = new($"{value}st task");
+                todo.Finished = value % 2 == 0; // is even, so let's define as finished
+                await service.CreateAsync(todo, cancellationToken);
+            }
 
-            A.CallTo(() => repository.FlagAsDeletedAsync(identifier, cancellationToken))
-                .MustHaveHappenedOnceExactly();
+            var results = await service.GetManyAsync(e => e.Finished, 1, 20, cancellationToken);
 
-            A.CallTo(() => unitOfWork.CommitAsync(cancellationToken))
-                .MustHaveHappenedOnceExactly();
+            Assert.Equal(10, results.Count());
+
+            // remove after
+            dbContext.TodoList.RemoveRange(dbContext.TodoList.ToList());
+            dbContext.SaveChanges();
         }
 
         [Fact]
-        public void Todo_Delete_MustInitialize_WithValueFalse()
+        public async Task MustBeAbleToUpdateTheRecord()
         {
-            Todo todo = new("task", false);
-
-            Assert.False(todo.Deleted);
-        }
-
-        [Fact]
-        public void Count_MustReturnAmountOfRecords()
-        {
-            A.CallTo(() => repository.Count()).Returns(5);
-
-            int count = service.Count();
-
-            A.CallTo(() => repository.Count()).MustHaveHappenedOnceExactly();
-
-            Assert.Equal(5, count);
-        }
-
-
-        [Fact]
-        public async Task GetManyAsync_MustCallRepository()
-        {
-            Expression<Func<Todo, bool>> filter = (entity) => entity.Deleted == false;
-            int currentPage = 1;
-            int pageSize = 10;
             CancellationToken cancellationToken = new();
 
-            await service.GetManyAsync(filter, currentPage, pageSize, cancellationToken);
+            Todo todo = new($"new task", false); // ensure the task is not finished
+            await service.CreateAsync(todo, cancellationToken);
 
-            A.CallTo(() => repository.GetManyAsync(filter, currentPage, pageSize, cancellationToken))
-                .MustHaveHappenedOnceExactly();
+            todo.Finished = true;
+            Todo todoAfterUpdate = await service.UpdateAsync(todo, cancellationToken);
+
+            Assert.True(todoAfterUpdate.Finished, "Returned data has not been updated");
+
+            // remove after
+            dbContext.TodoList.Remove(todoAfterUpdate);
+            dbContext.SaveChanges();
         }
 
         [Fact]
-        public async Task GetOneAsync_MustCallRepository()
+        public async Task MustNotBeAbleToQueryDestroyedRecords()
         {
-            Expression<Func<Todo, bool>> filter = (entity) => entity.Deleted == false;
+            Todo todo = new("new task");
             CancellationToken cancellationToken = new();
 
-            await service.GetOneAsync(filter, cancellationToken);
+            Todo createdTodo = await service.CreateAsync(todo, cancellationToken);
 
-            A.CallTo(() => repository.GetOneAsync(filter, cancellationToken))
-                .MustHaveHappenedOnceExactly();
+            await service.DestroyAsync(createdTodo.Id, cancellationToken);
+
+            Todo createdEntityExist = await service.GetOneAsync(e => e.Id.Equals(createdTodo.Id), cancellationToken);
+
+            Assert.True(createdEntityExist == null, "The created entity should be destroyed");
         }
 
         [Fact]
-        public async Task UpdateAsync_MustReturnTheNewRecord()
+        public async Task MustNotBeAbleToQueryDeletedRecords()
         {
-            Todo todo = A.Fake<Todo>();
+            Todo todo = new("new task");
             CancellationToken cancellationToken = new();
-            A.CallTo(() => repository.UpdateAsync(todo, cancellationToken))
-                .Returns(todo);
 
-            Todo result = await service.UpdateAsync(todo, cancellationToken);
+            Todo createdTodo = await service.CreateAsync(todo, cancellationToken);
 
-            A.CallTo(() => repository.UpdateAsync(todo, cancellationToken))
-                .MustHaveHappenedOnceExactly();
+            await service.FlagAsDeletedAsync(createdTodo.Id, cancellationToken);
 
-            A.CallTo(() => unitOfWork.CommitAsync(cancellationToken))
-                .MustHaveHappenedOnceExactly();
+            Todo createdEntityExist = await service.GetOneAsync(e => e.Id.Equals(createdTodo.Id), cancellationToken);
 
-            Assert.Equal(todo, result);
+            Assert.True(createdEntityExist.Deleted, "The created entity should be flagged as deleted");
+
+            // remove after
+            dbContext.TodoList.Remove(createdTodo);
+            dbContext.SaveChanges();
         }
     }
 }

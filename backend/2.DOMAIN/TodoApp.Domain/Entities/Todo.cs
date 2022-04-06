@@ -2,7 +2,7 @@
 {
     public class Todo
     {
-        public Todo(string title, bool finished)
+        public Todo(string title, bool finished = false)
         {
             Title = title;
             Finished = finished;
