@@ -17,6 +17,11 @@ namespace TodoApp.Services.Implementations
             _repository = repository;
         }
 
+        public int Count()
+        {
+            return _repository.Count();
+        }
+
         public async Task<Todo> CreateAsync(Todo entity, CancellationToken cancellationToken = default)
         {
             Todo createdTodo = await _repository.CreateAsync(entity, cancellationToken);
@@ -42,7 +47,7 @@ namespace TodoApp.Services.Implementations
 
         public async Task<IEnumerable<Todo>> GetManyAsync(Expression<Func<Todo, bool>> filter, int currentPage = 1, int pageSize = 20, CancellationToken cancellationToken = default)
         {
-            return await _repository.GetManyAsync((entity) => !entity.Deleted, currentPage, pageSize, cancellationToken);
+            return await _repository.GetManyAsync(filter, currentPage, pageSize, cancellationToken);
         }
 
         public async Task<Todo?> GetOneAsync(Expression<Func<Todo, bool>> filter, CancellationToken cancellationToken = default)

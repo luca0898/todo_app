@@ -12,5 +12,6 @@ namespace TodoApp.Domain.Contracts.Services
         Task<Todo> UpdateAsync(Todo entity, CancellationToken cancellationToken = default);
         Task FlagAsDeletedAsync(string identifier, CancellationToken cancellationToken = default);
         Task DestroyAsync(string identifier, CancellationToken cancellationToken = default);
+        int Count();
     }
 }

@@ -29,9 +29,22 @@ namespace TodoApp.Controllers
         [HttpGet("")]
         public async Task<IActionResult> GetAsync(int currentPage = 1, int pageSize = 20, CancellationToken cancellationToken = default)
         {
+            if (currentPage <= 0)
+            {
+                return BadRequest(new ErrorResponseViewModel($"{nameof(currentPage)} query parameter must be greater than zero"));
+            }
+            if (pageSize <= 0)
+            {
+                return BadRequest(new ErrorResponseViewModel($"{nameof(pageSize)} query parameter must be greater than zero"));
+            }
+
             IEnumerable<Todo> entities = await _service.GetManyAsync((entity) => !entity.Deleted, currentPage, pageSize, cancellationToken);
 
-            return Ok(new SuccessResponseViewModel<IEnumerable<TodoViewModel>>(_mapper.Map<IEnumerable<TodoViewModel>>(entities)));
+            int totalRecords = _service.Count();
+
+            var entityAsViewModel = _mapper.Map<IEnumerable<TodoViewModel>>(entities);
+
+            return Ok(new PaggedResponseViewModel<IEnumerable<TodoViewModel>>(entityAsViewModel, currentPage, pageSize, totalRecords));
         }
 
         [HttpGet("{id}")]
