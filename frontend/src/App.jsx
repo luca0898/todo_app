@@ -16,7 +16,9 @@ function App() {
     setTodos(responseBody)
   }
 
-  async function createNewTodo() {
+  async function createNewTodo(e) {
+    e.preventDefault();
+
     if (!newTodo)
       return;
 
@@ -47,15 +49,15 @@ function App() {
   return (
     <div>
 
-      <header className={styles.controls}>
+      <form onSubmit={createNewTodo} className={styles.controls}>
         <input
           type="text"
           placeholder="Digite uma descrição ..."
           value={newTodo}
           onChange={(value) => setNewTodo(value.target.value)}
         />
-        <button className={styles.add_button} onClick={createNewTodo}>+</button>
-      </header>
+        <button className={styles.add_button} type="submit">+</button>
+      </form>
 
       <div>
         <ul>
